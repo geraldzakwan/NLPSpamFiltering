@@ -1,34 +1,73 @@
-import json,csv
+import sys
+import json
+import csv
 import nltk
+import numpy as np
+from sklearn import datasets
 from nltk.stem import WordNetLemmatizer
+from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
+from sklearn.svm import SVC, NuSVC, LinearSVC
+from sklearn.metrics import confusion_matrix   
 
-def make_dictionary(train_dir):
-    # train_dir as array of words all training data
+stopwords_dict = {}
+punctuation_dict = {}
 
+def is_ascii(s):
+    return all(ord(c) < 128 for c in s)
 
-# nltk.download()
-if __name__ == '__main__':
-    # get json file stop words
+def is_stopword(s):
+    return s in stopwords_dict
+
+def is_containing_punctuation(s):
+    for key in punctuation_dict:
+        if(key in s):
+            return True
+    return False
+
+def build_word_dictionary():
     file = open('stopwords-en.json','r+')
     stopwords_list = []
     stopwords_list = json.load(file)
-    punctuantion_list = ['!','&','?',]
-    # print(stopwords_list)
+
     file.close()
-    filter_words = []
+
+    for stopword in stopwords_list:
+        stopwords_dict[stopword] = True
+
+    file = open('punctuation-en.json','r+')
+    punctuation_list = []
+    punctuation_list = json.load(file)
+    file.close()
+
+    for punctuation in punctuation_list:
+        punctuation_dict[punctuation] = True
+
+    # Build word dictionary
+    word_dictionary = {}
     lemmatizer = WordNetLemmatizer()
-    # print(lemmatizer.lemmatize('monsters'))
-    with open('spam.csv') as spamcsv:
+    train_labels = []
+    with open('spam.csv', 'rb') as spamcsv:
         readCSV = csv.reader(spamcsv)
         for row in readCSV:
-            # lemmatization
-            # filterword = lemmatizer.lemmatize(row[1])
-            # print(row[0])
-            words = row[1].split()
-            # print(words)
-            # hapus kata2 dari filterword jika ada di list stop words            
-            for word in words:
-                if not word in stopwords_list and not word in punctuantion_list:
-                    word_lmt = lemmatizer.lemmatize(word)
-                    filter_words.append(word_lmt)
-            print(filter_words)
+            sentence = row[1]
+            spam = row[0] # spam = 0, not spam = 1
+            if spam == "spam":
+                train_labels.append(0)
+            else:
+                train_labels.append(1)                
+            if(is_ascii(sentence)):
+                tokens = nltk.word_tokenize(sentence)  
+                for token in tokens:
+                    if(is_ascii(token)):
+                        if(not is_stopword(token)):
+                            if(not is_containing_punctuation(token)):
+                                # Add to word dictionary
+                                token = lemmatizer.lemmatize(token)
+                                if(token in word_dictionary):
+                                    word_dictionary[token] = word_dictionary[token] + 1
+                                else:
+                                    word_dictionary[token] = 1
+    return (word_dictionary,train_labels)
+
+if __name__ == '__main__':
+    print(build_word_dictionary())
