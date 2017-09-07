@@ -11,6 +11,7 @@ from sklearn.metrics import confusion_matrix
 
 stopwords_dict = {}
 punctuation_dict = {}
+lemmatizer = WordNetLemmatizer()
 
 def is_ascii(s):
     return all(ord(c) < 128 for c in s)
@@ -44,8 +45,10 @@ def build_word_dictionary():
 
     # Build word dictionary
     word_dictionary = {}
-    lemmatizer = WordNetLemmatizer()
+    word_dictionary_2 = {}
+
     train_labels = []
+    iter_word = 0
     with open('spam.csv', 'rb') as spamcsv:
         readCSV = csv.reader(spamcsv)
         for row in readCSV:
@@ -67,28 +70,60 @@ def build_word_dictionary():
                                     word_dictionary[token] = word_dictionary[token] + 1
                                 else:
                                     word_dictionary[token] = 1
-    return (word_dictionary,train_labels)
+                                    word_dictionary_2[token] = iter_word
+                                    iter_word = iter_word + 1
 
-def convert_to_tuple_list(word_dictionary):
-    tuple_list = []
-    for key, value in word_dictionary.items():
-        tuple_list.append((key, value))
-    return tuple_list
+    return (word_dictionary, word_dictionary_2, train_labels)
 
-def convert_to_matrix(word_dictionary):
+# def convert_to_tuple_list(word_dictionary):
+#     tuple_list = []
+#     for key, value in word_dictionary.items():
+#         tuple_list.append((key, value))
+#     return tuple_list
+
+def convert_to_matrix(word_dictionary, word_dictionary_2):
     # train_matrix = np.zeros(1,len(word_dictionary))
-    train_matrix = [[0 for x in range(len(word_dictionary))] for y in range(1)] 
-    i = 0
-    for key, value in word_dictionary.items():
-        train_matrix[0][i] = value
-        i = i + 1
+    # train_matrix = [[0 for x in range(len(word_dictionary))] for y in range(1)]
+    # i = 0
+    # for key, value in word_dictionary.items():
+    #     train_matrix[0][i] = value
+    #     i = i + 1
+    # return train_matrix
+    train_matrix = [[0 for x in range(len(word_dictionary))] for y in range(1)]
+    with open('spam.csv', 'rb') as spamcsv:
+        readCSV = csv.reader(spamcsv)
+        iter_mat = 0
+        for row in readCSV:
+            sentence = row[1]
+            train_matrix[iter_mat] = extract_features(sentence, word_dictionary, word_dictionary_2)
+
     return train_matrix
 
+def extract_features(sentence, word_dictionary, word_dictionary_2):
+    vector = np.zeros(len(word_dictionary))
+
+    if(is_ascii(sentence)):
+        tokens = nltk.word_tokenize(sentence)
+        for token in tokens:
+            if(is_ascii(token)):
+                if(not is_stopword(token)):
+                    if(not is_containing_punctuation(token)):
+                        # Add to word dictionary
+                        token = lemmatizer.lemmatize(token)
+                        if(token in word_dictionary):
+                            print("Token : " + str(token))
+                            print("Urutan : " + str(word_dictionary_2[token]))
+                            print("Frekuensi : " + str(word_dictionary[token]))
+                            vector[word_dictionary_2[token]] = word_dictionary[token]
+    print("Vector : ")
+    print(vector)
+    return vector
+
 if __name__ == '__main__':
-    (word_dict,train_labels) = build_word_dictionary()
-    train_matrix = convert_to_matrix(word_dict)
-    model1 = MultinomialNB()
-    # print(train_labels)
+    (word_dict, word_dict_2, train_labels) = build_word_dictionary()
+    train_matrix = convert_to_matrix(word_dict, word_dict_2)
+
+    # model1 = MultinomialNB()
     model2 = LinearSVC()
-    model1.fit(train_matrix,train_labels)
+    # model1.fit(train_matrix,train_labels)
     model2.fit(train_matrix,train_labels)
