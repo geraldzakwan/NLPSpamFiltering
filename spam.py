@@ -13,6 +13,13 @@ stopwords_dict = {}
 punctuation_dict = {}
 lemmatizer = WordNetLemmatizer()
 
+def len_file():
+    with open("spam.csv","r") as f:
+        reader = csv.reader(f,delimiter = ",")
+        data = list(reader)
+        row_count = len(data)
+    return row_count
+
 def is_ascii(s):
     return all(ord(c) < 128 for c in s)
 
@@ -89,13 +96,18 @@ def convert_to_matrix(word_dictionary, word_dictionary_2):
     #     train_matrix[0][i] = value
     #     i = i + 1
     # return train_matrix
-    train_matrix = [[0 for x in range(len(word_dictionary))] for y in range(1)]
+    train_matrix = [[0 for x in range(len(word_dictionary))] for y in range(len_file())]
     with open('spam.csv', 'rb') as spamcsv:
         readCSV = csv.reader(spamcsv)
         iter_mat = 0
         for row in readCSV:
             sentence = row[1]
-            train_matrix[iter_mat] = extract_features(sentence, word_dictionary, word_dictionary_2)
+            vector = extract_features(sentence, word_dictionary, word_dictionary_2)
+            # print("Vector : ")
+            # print(vector)
+            for x in range(0, len(word_dictionary)):
+                train_matrix[iter_mat][x] = vector[x]
+            iter_mat = iter_mat + 1
 
     return train_matrix
 
@@ -111,19 +123,23 @@ def extract_features(sentence, word_dictionary, word_dictionary_2):
                         # Add to word dictionary
                         token = lemmatizer.lemmatize(token)
                         if(token in word_dictionary):
-                            print("Token : " + str(token))
-                            print("Urutan : " + str(word_dictionary_2[token]))
-                            print("Frekuensi : " + str(word_dictionary[token]))
+                            # print("Token : " + str(token))
+                            # print("Urutan : " + str(word_dictionary_2[token]))
+                            # print("Frekuensi : " + str(word_dictionary[token]))
                             vector[word_dictionary_2[token]] = word_dictionary[token]
-    print("Vector : ")
-    print(vector)
     return vector
 
 if __name__ == '__main__':
     (word_dict, word_dict_2, train_labels) = build_word_dictionary()
     train_matrix = convert_to_matrix(word_dict, word_dict_2)
+    # print(train_matrix)
 
-    # model1 = MultinomialNB()
+    model1 = MultinomialNB()
     model2 = LinearSVC()
-    # model1.fit(train_matrix,train_labels)
+    model1.fit(train_matrix,train_labels)
     model2.fit(train_matrix,train_labels)
+
+    result1 = model1.predict(train_matrix)
+    result2 = model2.predict(train_matrix)
+    print confusion_matrix(train_labels,result1)
+    print confusion_matrix(train_labels,result2)
