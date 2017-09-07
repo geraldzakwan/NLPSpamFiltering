@@ -156,7 +156,7 @@ def accuracy_ten_fold(model, train_matrix, train_labels):
     number_of_test = 10 * len(train_matrix) / 100
 
     for i in range(0, 10):
-        print("Doing iteration " + str(i) + " : ")
+        print("Doing iteration " + str(i+1) + " : ")
         train_matrix_selected = train_matrix[:start] + train_matrix[(start+number_of_test):]
         train_label_selected = train_labels[:start] + train_labels[(start+number_of_test):]
 
