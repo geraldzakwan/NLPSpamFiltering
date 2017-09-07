@@ -150,7 +150,7 @@ def accuracy_split(model, train_matrix, train_labels, train_percentage):
 
 def accuracy_ten_fold(model, train_matrix, train_labels):
     print ("Doing 10 fold validation : ")
-    print()
+    print ""
     accuracy = 0
     start = 0
     number_of_test = 10 * len(train_matrix) / 100
@@ -181,14 +181,28 @@ if __name__ == '__main__':
 
     model1 = MultinomialNB()
     model2 = LinearSVC()
+    model3 = GaussianNB()
+    model4 = SVC()
 
-    print ("Multinomial Naive Bayes Accuracy : ")
+    print ("Naive Bayes (Gaussian) Learning : ")
+    if(len(sys.argv) == 2):
+        accuracy_split(model3, train_matrix, train_labels, int(sys.argv[1]))
+    else:
+        accuracy_ten_fold(model3, train_matrix, train_labels)
+
+    print ("Naive Bayes (Multinomial) Learning : ")
     if(len(sys.argv) == 2):
         accuracy_split(model1, train_matrix, train_labels, int(sys.argv[1]))
     else:
         accuracy_ten_fold(model1, train_matrix, train_labels)
 
-    print ("SVM (LinearSVC) accuracy : ")
+    print ("SVM (SVC) Learning : ")
+    if(len(sys.argv) == 2):
+        accuracy_split(model4, train_matrix, train_labels, int(sys.argv[1]))
+    else:
+        accuracy_ten_fold(model4, train_matrix, train_labels)
+
+    print ("SVM (LinearSVC) Learning : ")
     if(len(sys.argv) == 2):
         accuracy_split(model2, train_matrix, train_labels, int(sys.argv[1]))
     else:
