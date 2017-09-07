@@ -10,6 +10,7 @@ from sklearn.svm import SVC, NuSVC, LinearSVC
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import KFold
 
 stopwords_dict = {}
 punctuation_dict = {}
@@ -132,29 +133,30 @@ def extract_features(sentence, word_dictionary, word_dictionary_2):
                             vector[word_dictionary_2[token]] = word_dictionary[token]
     return vector
 
+def accuracy(model, train_matrix, train_labels, train_percentage):
+    split_number = train_percentage * len(train_matrix) / 100
+    train_matrix_selected = train_matrix[:split_number]
+    train_label_selected = train_labels[:split_number]
+
+    model.fit(train_matrix_selected, train_label_selected)
+
+    test_matrix_selected = train_matrix[split_number:]
+    test_label_selected = train_labels[split_number:]
+
+    result = model.predict(test_matrix_selected)
+    # print confusion_matrix(train_labels,result)
+
+    print accuracy_score(test_label_selected, result)
+
 if __name__ == '__main__':
     (word_dict_frek, word_dict_2, train_labels) = build_word_dictionary()
     train_matrix = convert_to_matrix(word_dict_frek, word_dict_2)
-    # print(train_matrix)
 
     model1 = MultinomialNB()
     model2 = LinearSVC()
-    # model3 = SVC()
-    # model4 = NuSVC()
 
-    model1.fit(train_matrix, train_labels)
-    model2.fit(train_matrix, train_labels)
-    # model3.fit(train_matrix, train_labels)
-    # model4.fit(train_matrix, train_labels)
+    print ("Multinomial Naive Bayes Accuracy : ")
+    accuracy(model1, train_matrix, train_labels, int(sys.argv[1]))
 
-    result1 = model1.predict(train_matrix)
-    result2 = model2.predict(train_matrix)
-    # result3 = model3.predict(train_matrix)
-    # result4 = model3.predict(train_matrix)
-    # print confusion_matrix(train_labels,result1)
-    # print confusion_matrix(train_labels,result2)
-
-    print accuracy_score(train_labels,result1)
-    print accuracy_score(train_labels,result2)
-    # print accuracy_score(train_labels,result3)
-    # print accuracy_score(train_labels,result4)
+    print ("SVM (LinearSVC) accuracy : ")
+    accuracy(model2, train_matrix, train_labels, int(sys.argv[1]))
