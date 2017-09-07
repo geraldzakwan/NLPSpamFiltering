@@ -130,7 +130,8 @@ def extract_features(sentence, word_dictionary, word_dictionary_2):
                             # print("Token : " + str(token))
                             # print("Urutan : " + str(word_dictionary_2[token]))
                             # print("Frekuensi : " + str(word_dictionary[token]))
-                            vector[word_dictionary_2[token]] = word_dictionary[token]
+                            # vector[word_dictionary_2[token]] = word_dictionary[token]
+                            vector[word_dictionary_2[token]] = vector[word_dictionary_2[token]] + 1
     return vector
 
 def accuracy_split(model, train_matrix, train_labels, train_percentage):
