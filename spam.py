@@ -133,7 +133,7 @@ def extract_features(sentence, word_dictionary, word_dictionary_2):
                             vector[word_dictionary_2[token]] = word_dictionary[token]
     return vector
 
-def accuracy(model, train_matrix, train_labels, train_percentage):
+def accuracy_split(model, train_matrix, train_labels, train_percentage):
     split_number = train_percentage * len(train_matrix) / 100
     train_matrix_selected = train_matrix[:split_number]
     train_label_selected = train_labels[:split_number]
@@ -148,6 +148,33 @@ def accuracy(model, train_matrix, train_labels, train_percentage):
 
     print accuracy_score(test_label_selected, result)
 
+def accuracy_ten_fold(model, train_matrix, train_labels):
+    print ("Doing 10 fold validation : ")
+    print()
+    accuracy = 0
+    start = 0
+    number_of_test = 10 * len(train_matrix) / 100
+
+    for i in range(0, 10):
+        print("Doing iteration " + str(i) + " : ")
+        train_matrix_selected = train_matrix[:start] + train_matrix[(start+number_of_test):]
+        train_label_selected = train_labels[:start] + train_labels[(start+number_of_test):]
+
+        test_matrix_selected = train_matrix[start:(start+number_of_test)]
+        test_label_selected = train_labels[start:(start+number_of_test)]
+
+        model.fit(train_matrix_selected, train_label_selected)
+
+        result = model.predict(test_matrix_selected)
+        # print confusion_matrix(train_labels,result)
+
+        curr_acc = accuracy_score(test_label_selected, result)
+        accuracy = accuracy + curr_acc
+        start = start + number_of_test
+        print("Accuracy : " + str(curr_acc))
+
+    print accuracy / 10
+
 if __name__ == '__main__':
     (word_dict_frek, word_dict_2, train_labels) = build_word_dictionary()
     train_matrix = convert_to_matrix(word_dict_frek, word_dict_2)
@@ -156,7 +183,13 @@ if __name__ == '__main__':
     model2 = LinearSVC()
 
     print ("Multinomial Naive Bayes Accuracy : ")
-    accuracy(model1, train_matrix, train_labels, int(sys.argv[1]))
+    if(len(sys.argv) == 2):
+        accuracy_split(model1, train_matrix, train_labels, int(sys.argv[1]))
+    else:
+        accuracy_ten_fold(model1, train_matrix, train_labels)
 
     print ("SVM (LinearSVC) accuracy : ")
-    accuracy(model2, train_matrix, train_labels, int(sys.argv[1]))
+    if(len(sys.argv) == 2):
+        accuracy_split(model2, train_matrix, train_labels, int(sys.argv[1]))
+    else:
+        accuracy_ten_fold(model2, train_matrix, train_labels)
