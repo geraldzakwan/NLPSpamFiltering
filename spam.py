@@ -8,13 +8,16 @@ from nltk.stem import WordNetLemmatizer
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 from sklearn.svm import SVC, NuSVC, LinearSVC
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
+from sklearn.tree import DecisionTreeClassifier
 
 stopwords_dict = {}
 punctuation_dict = {}
 lemmatizer = WordNetLemmatizer()
+csv_name = "output.csv"
 
 def len_file():
-    with open("spam.csv","r") as f:
+    with open(csv_name,"r") as f:
         reader = csv.reader(f,delimiter = ",")
         data = list(reader)
         row_count = len(data)
@@ -56,7 +59,7 @@ def build_word_dictionary():
 
     train_labels = []
     iter_word = 0
-    with open('spam.csv', 'rb') as spamcsv:
+    with open(csv_name, 'rb') as spamcsv:
         readCSV = csv.reader(spamcsv)
         for row in readCSV:
             sentence = row[1]
@@ -97,7 +100,7 @@ def convert_to_matrix(word_dictionary, word_dictionary_2):
     #     i = i + 1
     # return train_matrix
     train_matrix = [[0 for x in range(len(word_dictionary))] for y in range(len_file())]
-    with open('spam.csv', 'rb') as spamcsv:
+    with open(csv_name, 'rb') as spamcsv:
         readCSV = csv.reader(spamcsv)
         iter_mat = 0
         for row in readCSV:
@@ -133,13 +136,25 @@ if __name__ == '__main__':
     (word_dict_frek, word_dict_2, train_labels) = build_word_dictionary()
     train_matrix = convert_to_matrix(word_dict_frek, word_dict_2)
     # print(train_matrix)
-    
+
     model1 = MultinomialNB()
     model2 = LinearSVC()
-    model1.fit(train_matrix,train_labels)
-    model2.fit(train_matrix,train_labels)
+    # model3 = SVC()
+    # model4 = NuSVC()
+
+    model1.fit(train_matrix, train_labels)
+    model2.fit(train_matrix, train_labels)
+    # model3.fit(train_matrix, train_labels)
+    # model4.fit(train_matrix, train_labels)
 
     result1 = model1.predict(train_matrix)
     result2 = model2.predict(train_matrix)
-    print confusion_matrix(train_labels,result1)
-    print confusion_matrix(train_labels,result2)
+    # result3 = model3.predict(train_matrix)
+    # result4 = model3.predict(train_matrix)
+    # print confusion_matrix(train_labels,result1)
+    # print confusion_matrix(train_labels,result2)
+
+    print accuracy_score(train_labels,result1)
+    print accuracy_score(train_labels,result2)
+    # print accuracy_score(train_labels,result3)
+    # print accuracy_score(train_labels,result4)
