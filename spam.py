@@ -70,4 +70,11 @@ def build_word_dictionary():
     return (word_dictionary,train_labels)
 
 if __name__ == '__main__':
-    print(build_word_dictionary())
+    # print(build_word_dictionary())
+    (train_matrix,train_labels) = build_word_dictionary()
+    model1 = MultinomialNB()
+    model2 = LinearSVC()
+    print type(train_matrix)
+    print(train_matrix)
+    # model1.fit(train_matrix,train_labels)
+    # model2.fit(train_matrix,train_labels)
