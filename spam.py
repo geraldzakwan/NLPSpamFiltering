@@ -2,11 +2,13 @@ import sys
 import json
 import csv
 import nltk
+import numpy as np
+from sklearn import datasets
 from nltk.stem import WordNetLemmatizer
+from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
+from sklearn.svm import SVC, NuSVC, LinearSVC
+from sklearn.metrics import confusion_matrix   
 
-# reload(sys)
-# sys.setdefaultencoding("utf-8")
-# nltk.download()
 stopwords_dict = {}
 punctuation_dict = {}
 
@@ -26,6 +28,7 @@ def build_word_dictionary():
     file = open('stopwords-en.json','r+')
     stopwords_list = []
     stopwords_list = json.load(file)
+
     file.close()
 
     for stopword in stopwords_list:
@@ -42,14 +45,18 @@ def build_word_dictionary():
     # Build word dictionary
     word_dictionary = {}
     lemmatizer = WordNetLemmatizer()
-
+    train_labels = []
     with open('spam.csv', 'rb') as spamcsv:
         readCSV = csv.reader(spamcsv)
         for row in readCSV:
             sentence = row[1]
+            spam = row[0] # spam = 0, not spam = 1
+            if spam == "spam":
+                train_labels.append(0)
+            else:
+                train_labels.append(1)                
             if(is_ascii(sentence)):
-                tokens = nltk.word_tokenize(sentence)
-
+                tokens = nltk.word_tokenize(sentence)  
                 for token in tokens:
                     if(is_ascii(token)):
                         if(not is_stopword(token)):
@@ -60,8 +67,7 @@ def build_word_dictionary():
                                     word_dictionary[token] = word_dictionary[token] + 1
                                 else:
                                     word_dictionary[token] = 1
-
-    return word_dictionary
+    return (word_dictionary,train_labels)
 
 if __name__ == '__main__':
     print(build_word_dictionary())
