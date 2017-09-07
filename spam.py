@@ -120,9 +120,9 @@ def extract_features(sentence, word_dictionary, word_dictionary_2):
     return vector
 
 if __name__ == '__main__':
-    (word_dict, word_dict_2, train_labels) = build_word_dictionary()
-    train_matrix = convert_to_matrix(word_dict, word_dict_2)
-
+    (word_dict_frek, word_dict_2, train_labels) = build_word_dictionary()
+    train_matrix = convert_to_matrix(word_dict_frek, word_dict_2)
+    print(train_matrix)
     # model1 = MultinomialNB()
     model2 = LinearSVC()
     # model1.fit(train_matrix,train_labels)
