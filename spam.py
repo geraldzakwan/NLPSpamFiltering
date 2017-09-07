@@ -7,7 +7,7 @@ from sklearn import datasets
 from nltk.stem import WordNetLemmatizer
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 from sklearn.svm import SVC, NuSVC, LinearSVC
-from sklearn.metrics import confusion_matrix   
+from sklearn.metrics import confusion_matrix
 
 stopwords_dict = {}
 punctuation_dict = {}
@@ -54,9 +54,9 @@ def build_word_dictionary():
             if spam == "spam":
                 train_labels.append(0)
             else:
-                train_labels.append(1)                
+                train_labels.append(1)
             if(is_ascii(sentence)):
-                tokens = nltk.word_tokenize(sentence)  
+                tokens = nltk.word_tokenize(sentence)
                 for token in tokens:
                     if(is_ascii(token)):
                         if(not is_stopword(token)):
@@ -69,5 +69,13 @@ def build_word_dictionary():
                                     word_dictionary[token] = 1
     return (word_dictionary,train_labels)
 
+def convert_to_tuple_list(word_dictionary):
+    tuple_list = []
+    for key, value in word_dictionary.items():
+        tuple_list.append((key, value))
+    return tuple_list
+
 if __name__ == '__main__':
-    print(build_word_dictionary())
+    ret_tuple = build_word_dictionary()
+    word_dictionary = ret_tuple[0]
+    print(convert_to_tuple_list(word_dictionary))
