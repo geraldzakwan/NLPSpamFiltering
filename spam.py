@@ -7,7 +7,7 @@ from sklearn import datasets
 from nltk.stem import WordNetLemmatizer
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 from sklearn.svm import SVC, NuSVC, LinearSVC
-from sklearn.metrics import confusion_matrix   
+from sklearn.metrics import confusion_matrix
 
 stopwords_dict = {}
 punctuation_dict = {}
@@ -54,9 +54,9 @@ def build_word_dictionary():
             if spam == "spam":
                 train_labels.append(0)
             else:
-                train_labels.append(1)                
+                train_labels.append(1)
             if(is_ascii(sentence)):
-                tokens = nltk.word_tokenize(sentence)  
+                tokens = nltk.word_tokenize(sentence)
                 for token in tokens:
                     if(is_ascii(token)):
                         if(not is_stopword(token)):
@@ -69,12 +69,26 @@ def build_word_dictionary():
                                     word_dictionary[token] = 1
     return (word_dictionary,train_labels)
 
+def convert_to_tuple_list(word_dictionary):
+    tuple_list = []
+    for key, value in word_dictionary.items():
+        tuple_list.append((key, value))
+    return tuple_list
+
+def convert_to_matrix(word_dictionary):
+    # train_matrix = np.zeros(1,len(word_dictionary))
+    train_matrix = [[0 for x in range(len(word_dictionary))] for y in range(1)] 
+    i = 0
+    for key, value in word_dictionary.items():
+        train_matrix[0][i] = value
+        i = i + 1
+    return train_matrix
+
 if __name__ == '__main__':
-    # print(build_word_dictionary())
-    (train_matrix,train_labels) = build_word_dictionary()
+    (word_dict,train_labels) = build_word_dictionary()
+    train_matrix = convert_to_matrix(word_dict)
     model1 = MultinomialNB()
+    # print(train_labels)
     model2 = LinearSVC()
-    print type(train_matrix)
-    print(train_matrix)
-    # model1.fit(train_matrix,train_labels)
-    # model2.fit(train_matrix,train_labels)
+    model1.fit(train_matrix,train_labels)
+    model2.fit(train_matrix,train_labels)
