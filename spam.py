@@ -72,6 +72,7 @@ def build_word_dictionary():
             if(is_ascii(sentence)):
                 tokens = nltk.word_tokenize(sentence)
                 for token in tokens:
+                    token = token.lower()
                     if(is_ascii(token)):
                         if(not is_stopword(token)):
                             if(not is_containing_punctuation(token)):
@@ -121,6 +122,7 @@ def extract_features(sentence, word_dictionary, word_dictionary_2):
     if(is_ascii(sentence)):
         tokens = nltk.word_tokenize(sentence)
         for token in tokens:
+            token = token.lower()
             if(is_ascii(token)):
                 if(not is_stopword(token)):
                     if(not is_containing_punctuation(token)):
